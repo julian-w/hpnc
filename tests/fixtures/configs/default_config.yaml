@@ -1,0 +1,13 @@
+project_name: test-project
+defaults:
+  merge_target: develop
+  executor: auto
+  reviewer: opposite
+  timeout: 30m
+  max_fix_attempts: 3
+  swap_executor_after: 2
+  max_review_rounds: 4
+logging:
+  dispatcher: normal
+  agent_output: truncated
+  max_agent_log_lines: 500
