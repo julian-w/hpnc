@@ -1,7 +1,7 @@
 """E2E smoke tests for real agent CLI integration.
 
 These tests invoke real AI agents and cost tokens.
-Run only when explicitly needed: pytest tests/e2e/ -v
+Run only when explicitly needed: pytest tests/e2e/ -v -m e2e
 
 Requires:
 - Claude Code CLI installed and authenticated
@@ -39,22 +39,35 @@ def _is_cli_available(cmd: str) -> bool:
         return False
 
 
-# --- Claude Code ---
+def _init_git_repo(path: Path) -> None:
+    """Initialize a minimal git repo for testing."""
+    subprocess.run(["git", "init"], cwd=str(path), capture_output=True, check=True)
+    subprocess.run(
+        ["git", "config", "user.email", "t@t.com"],
+        cwd=str(path), capture_output=True, check=True,
+    )
+    subprocess.run(
+        ["git", "config", "user.name", "T"],
+        cwd=str(path), capture_output=True, check=True,
+    )
+    (path / "README.md").write_text("# Test\n")
+    subprocess.run(["git", "add", "."], cwd=str(path), capture_output=True, check=True)
+    subprocess.run(
+        ["git", "commit", "-m", "init"], cwd=str(path),
+        capture_output=True, check=True,
+    )
 
 
-@pytest.mark.skipif(
-    not _is_cli_available("claude"),
-    reason="Claude Code CLI not installed",
-)
+# ===== Claude Code =====
+
+
+@pytest.mark.skipif(not _is_cli_available("claude"), reason="Claude Code not installed")
 def test_claude_code_connectivity() -> None:
     """Verify Claude Code CLI responds to --version."""
     ClaudeCodeExecutor.check_connectivity()
 
 
-@pytest.mark.skipif(
-    not _is_cli_available("claude"),
-    reason="Claude Code CLI not installed",
-)
+@pytest.mark.skipif(not _is_cli_available("claude"), reason="Claude Code not installed")
 def test_claude_code_simple_prompt(tmp_path: Path) -> None:
     """Invoke Claude Code with a trivial prompt and verify it completes."""
     story = tmp_path / "story.md"
@@ -69,50 +82,30 @@ def test_claude_code_simple_prompt(tmp_path: Path) -> None:
     status = executor.get_exit_status(process)
 
     assert status == ExitStatus.SUCCESS, f"Exit code: {process.returncode}"
-    output = "\n".join(output_lines)
-    assert len(output) > 0, "Expected some output from Claude Code"
+    assert len(output_lines) > 0, "Expected output from Claude Code"
 
 
-# --- Codex ---
+@pytest.mark.skipif(not _is_cli_available("claude"), reason="Claude Code not installed")
+def test_claude_code_preflight_creates_file(tmp_path: Path) -> None:
+    """Verify Claude Code can create files (coding capability)."""
+    ClaudeCodeExecutor.preflight_check(tmp_path)
+    # Marker should be cleaned up by preflight_check
+    assert not (tmp_path / ".hpnc-preflight-test").exists()
 
 
-@pytest.mark.skipif(
-    not _is_cli_available("codex"),
-    reason="Codex CLI not installed",
-)
+# ===== Codex =====
+
+
+@pytest.mark.skipif(not _is_cli_available("codex"), reason="Codex not installed")
 def test_codex_connectivity() -> None:
     """Verify Codex CLI responds to --version."""
     CodexExecutor.check_connectivity()
 
 
-@pytest.mark.skipif(
-    not _is_cli_available("codex"),
-    reason="Codex CLI not installed",
-)
+@pytest.mark.skipif(not _is_cli_available("codex"), reason="Codex not installed")
 def test_codex_simple_prompt(tmp_path: Path) -> None:
     """Invoke Codex with a trivial prompt and verify it completes."""
-    # Codex requires a git repo
-    subprocess.run(
-        ["git", "init"], cwd=str(tmp_path),
-        capture_output=True, check=True,
-    )
-    subprocess.run(
-        ["git", "config", "user.email", "t@t.com"],
-        cwd=str(tmp_path), capture_output=True, check=True,
-    )
-    subprocess.run(
-        ["git", "config", "user.name", "T"],
-        cwd=str(tmp_path), capture_output=True, check=True,
-    )
-    (tmp_path / "README.md").write_text("# Test\n")
-    subprocess.run(
-        ["git", "add", "."], cwd=str(tmp_path),
-        capture_output=True, check=True,
-    )
-    subprocess.run(
-        ["git", "commit", "-m", "init"], cwd=str(tmp_path),
-        capture_output=True, check=True,
-    )
+    _init_git_repo(tmp_path)
 
     story = tmp_path / "story.md"
     story.write_text("Respond with exactly: HPNC_TEST_OK\n")
@@ -127,7 +120,12 @@ def test_codex_simple_prompt(tmp_path: Path) -> None:
 
     stderr = process.stderr.read() if process.stderr else ""
     assert status == ExitStatus.SUCCESS, (
-        f"Exit code: {process.returncode}\n"
-        f"stdout: {output_lines}\n"
-        f"stderr: {stderr}"
+        f"Exit code: {process.returncode}\nstdout: {output_lines}\nstderr: {stderr}"
     )
+
+
+@pytest.mark.skipif(not _is_cli_available("codex"), reason="Codex not installed")
+def test_codex_preflight_responds(tmp_path: Path) -> None:
+    """Verify Codex can authenticate and respond to prompts."""
+    _init_git_repo(tmp_path)
+    CodexExecutor.preflight_check(tmp_path)  # Should not raise

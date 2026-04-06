@@ -5,6 +5,7 @@ Supports immediate start, --at, --delay, --dry-run, --mock.
 
 from __future__ import annotations
 
+import subprocess
 import time
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -150,14 +151,30 @@ def start(
         else:
             executor = get_executor(config.executor)
             reviewer = get_executor(config.reviewer)
-            # Verify agent connectivity before starting (NFR17)
+            # Pre-flight: verify agents can authenticate and work (NFR17)
             from hpnc.agents.claude_code import ClaudeCodeExecutor
             from hpnc.agents.codex import CodexExecutor
 
+            console.print("\n[bold]Pre-flight agent check...[/bold]")
+            preflight_dir = root / "_hpnc" / ".preflight"
+            preflight_dir.mkdir(parents=True, exist_ok=True)
+            # Init git in preflight dir for Codex
+            subprocess.run(
+                ["git", "init"], cwd=str(preflight_dir),
+                capture_output=True, text=True,
+            )
             if isinstance(executor, ClaudeCodeExecutor):
-                ClaudeCodeExecutor.check_connectivity()
+                console.print("  Checking Claude Code...")
+                ClaudeCodeExecutor.preflight_check(preflight_dir)
+                console.print("  [green]✓[/green] Claude Code: authenticated, can edit files")
             if isinstance(reviewer, CodexExecutor):
-                CodexExecutor.check_connectivity()
+                console.print("  Checking Codex...")
+                CodexExecutor.preflight_check(preflight_dir)
+                console.print("  [green]✓[/green] Codex: authenticated, can edit files")
+            # Clean up preflight dir
+            import shutil as _shutil
+
+            _shutil.rmtree(preflight_dir, ignore_errors=True)
         gates = GateRunner(gates=[BuildGate(), TestGate(), LintGate()])
 
         dispatcher = Dispatcher(

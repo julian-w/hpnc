@@ -67,6 +67,53 @@ class CodexExecutor:
                 action="Install Codex: npm install -g @openai/codex",
             ) from e
 
+    @staticmethod
+    def preflight_check(worktree: Path) -> None:
+        """Verify Codex can authenticate, edit files, and run commands.
+
+        Args:
+            worktree: Directory to run the preflight check in (must be a git repo).
+
+        Raises:
+            ConnectivityError: If any capability check fails.
+        """
+        try:
+            result = subprocess.run(
+                [
+                    _find_codex(), "exec", "--full-auto",
+                    "Respond with exactly: PREFLIGHT_OK",
+                ],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                cwd=str(worktree),
+                timeout=60,
+            )
+            if result.returncode != 0:
+                raise ConnectivityError(
+                    what="Codex preflight failed",
+                    why=result.stderr.strip() or "Non-zero exit",
+                    action="Check Codex authentication: set OPENAI_API_KEY or run 'codex' interactively",
+                )
+            if "PREFLIGHT_OK" not in result.stdout:
+                raise ConnectivityError(
+                    what="Codex not responding correctly",
+                    why="Expected PREFLIGHT_OK in output, got something else",
+                    action="Verify Codex API access and model availability",
+                )
+        except FileNotFoundError as e:
+            raise ConnectivityError(
+                what="Codex CLI not found",
+                why="'codex' command not found on PATH",
+                action="Install Codex: npm install -g @openai/codex",
+            ) from e
+        except subprocess.TimeoutExpired as e:
+            raise ConnectivityError(
+                what="Codex preflight timed out",
+                why="Preflight check did not complete within 60 seconds",
+                action="Check network connectivity and OpenAI API access",
+            ) from e
+
     def start(
         self,
         story: Path,

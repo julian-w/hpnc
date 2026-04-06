@@ -55,6 +55,64 @@ class ClaudeCodeExecutor:
                 action="Install Claude Code: https://claude.ai/code",
             ) from e
 
+    @staticmethod
+    def preflight_check(worktree: Path) -> None:
+        """Verify Claude Code can authenticate, edit files, and run commands.
+
+        Runs a minimal prompt that creates a file and executes a command.
+        Call this before the night run to catch auth/permission issues early.
+
+        Args:
+            worktree: Directory to run the preflight check in.
+
+        Raises:
+            ConnectivityError: If any capability check fails.
+        """
+        marker = worktree / ".hpnc-preflight-test"
+        try:
+            result = subprocess.run(
+                [
+                    "claude", "-p",
+                    "Create a file called .hpnc-preflight-test containing exactly: PREFLIGHT_OK",
+                    "--dangerously-skip-permissions",
+                    "--output-format", "text",
+                    "--max-turns", "3",
+                    "--no-session-persistence",
+                ],
+                stdin=subprocess.DEVNULL,
+                capture_output=True,
+                text=True,
+                cwd=str(worktree),
+                timeout=120,
+            )
+            if result.returncode != 0:
+                raise ConnectivityError(
+                    what="Claude Code preflight failed",
+                    why=result.stdout.strip() or result.stderr.strip() or "Non-zero exit",
+                    action="Check Claude Code authentication: run 'claude' interactively",
+                )
+            if not marker.exists():
+                raise ConnectivityError(
+                    what="Claude Code cannot edit files",
+                    why="Preflight prompt completed but no file was created",
+                    action="Verify Claude Code has file editing permissions",
+                )
+        except FileNotFoundError as e:
+            raise ConnectivityError(
+                what="Claude Code CLI not found",
+                why="'claude' command not found on PATH",
+                action="Install Claude Code: https://claude.ai/code",
+            ) from e
+        except subprocess.TimeoutExpired as e:
+            raise ConnectivityError(
+                what="Claude Code preflight timed out",
+                why="Preflight check did not complete within 120 seconds",
+                action="Check network connectivity and API access",
+            ) from e
+        finally:
+            if marker.exists():
+                marker.unlink()
+
     def start(
         self,
         story: Path,

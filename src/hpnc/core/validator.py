@@ -100,6 +100,7 @@ class Validator:
 
         self._validate_worktree_availability(result)
         self._validate_secrets_hook(result)
+        self._validate_agent_connectivity(result)
 
         return result
 
@@ -223,3 +224,47 @@ class Validator:
                 why="No git-secrets or gitleaks hook found in .pre-commit-config.yaml",
                 action="Add a secrets detection hook to .pre-commit-config.yaml",
             )
+
+    def _validate_agent_connectivity(self, result: ValidationResult) -> None:
+        """Verify required AI agents are reachable (NFR17).
+
+        Checks that both executor and reviewer CLIs respond to --version.
+        Does NOT run full preflight (that costs tokens) — use hpnc start
+        which runs preflight_check before the night run.
+
+        Args:
+            result: ValidationResult to append issues to.
+        """
+        import shutil
+
+        for agent_name, cli_cmd in [("Claude Code (executor)", "claude"), ("Codex (reviewer)", "codex")]:
+            found = shutil.which(cli_cmd)
+            if not found:
+                result.add(
+                    story="environment",
+                    what=f"{agent_name} not found",
+                    why=f"'{cli_cmd}' command not found on PATH",
+                    action=f"Install {agent_name} or set executor/reviewer to 'mock' in config",
+                )
+                continue
+            try:
+                proc = subprocess.run(
+                    [found, "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                if proc.returncode != 0:
+                    result.add(
+                        story="environment",
+                        what=f"{agent_name} not responding",
+                        why=proc.stderr.strip() or f"Exit code {proc.returncode}",
+                        action=f"Check {agent_name} installation and authentication",
+                    )
+            except subprocess.TimeoutExpired:
+                result.add(
+                    story="environment",
+                    what=f"{agent_name} timed out",
+                    why="Version check did not complete within 10 seconds",
+                    action=f"Check {agent_name} installation",
+                )
