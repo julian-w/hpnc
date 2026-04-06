@@ -1,3 +1,5 @@
 """Report generation for HPNC — markdown morning reports."""
 
-__all__: list[str] = []
+from hpnc.reporting.generator import NightReport, ReportGenerator, TaskReport
+
+__all__ = ["NightReport", "ReportGenerator", "TaskReport"]
