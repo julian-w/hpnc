@@ -88,8 +88,8 @@ HPNC is under active development. Current status:
 - [x] **Epic 2: Task Execution Engine** — Workspace, quality gates, event system, task runner
 - [x] **Epic 3: Setup, Validation & Queue** — Config loader, init command, queue manager, validation
 - [x] **Epic 4: Night Run & Morning Review** — Dispatcher, scheduling, report generator
-- [ ] **Epic 5: Real Agent Integration** — Claude Code executor, Codex executor
-- [ ] **Epic 6: Documentation** — MkDocs site, executor instructions
+- [x] **Epic 5: Real Agent Integration** — Claude Code executor, Codex executor
+- [x] **Epic 6: Documentation** — MkDocs site, executor instructions
 
 ## Tech Stack
 
