@@ -71,12 +71,16 @@ class CodexExecutor:
         """
         worktree = story.parent
 
+        cmd = [
+            "codex",
+            "--quiet",
+        ]
+        if instructions.exists():
+            cmd.extend(["--instructions", str(instructions)])
+        cmd.extend(["--", str(story)])
+
         return subprocess.Popen(
-            [
-                "codex",
-                "--quiet",
-                str(story),
-            ],
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,

@@ -150,6 +150,14 @@ def start(
         else:
             executor = get_executor(config.executor)
             reviewer = get_executor(config.reviewer)
+            # Verify agent connectivity before starting (NFR17)
+            from hpnc.agents.claude_code import ClaudeCodeExecutor
+            from hpnc.agents.codex import CodexExecutor
+
+            if isinstance(executor, ClaudeCodeExecutor):
+                ClaudeCodeExecutor.check_connectivity()
+            if isinstance(reviewer, CodexExecutor):
+                CodexExecutor.check_connectivity()
         gates = GateRunner(gates=[BuildGate(), TestGate(), LintGate()])
 
         dispatcher = Dispatcher(

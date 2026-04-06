@@ -71,13 +71,17 @@ class ClaudeCodeExecutor:
         """
         worktree = story.parent
 
+        cmd = [
+            "claude",
+            "--print",
+            "--dangerously-skip-permissions",
+        ]
+        if instructions.exists():
+            cmd.extend(["--system-prompt", str(instructions)])
+        cmd.extend(["--", str(story)])
+
         return subprocess.Popen(
-            [
-                "claude",
-                "--print",
-                "--dangerously-skip-permissions",
-                str(story),
-            ],
+            cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,

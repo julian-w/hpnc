@@ -36,6 +36,12 @@ def get_executor(name: str) -> AgentExecutor:
     Raises:
         ConfigError: If the agent name is not recognized.
     """
+    if not name or not isinstance(name, str):
+        raise ConfigError(
+            what="No agent specified",
+            why="executor/reviewer field is empty or missing in config",
+            action=f"Set executor/reviewer to one of: {', '.join(sorted(_REGISTRY.keys()))}",
+        )
     factory = _REGISTRY.get(name.lower())
     if factory is None:
         raise ConfigError(
