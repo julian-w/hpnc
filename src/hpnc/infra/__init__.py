@@ -10,6 +10,8 @@ from hpnc.infra.errors import (
     TaskInterruptedError,
     ValidationError,
 )
+from hpnc.infra.git import GitWrapper
+from hpnc.infra.process_lock import ProcessLock
 from hpnc.infra.workspace import Workspace
 
 __all__ = [
@@ -17,8 +19,10 @@ __all__ = [
     "ConfigError",
     "ConfigLoader",
     "ConnectivityError",
+    "GitWrapper",
     "HpncError",
     "InvalidTransitionError",
+    "ProcessLock",
     "TaskBlockedError",
     "TaskInterruptedError",
     "ValidationError",
