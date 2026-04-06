@@ -1,10 +1,12 @@
 # HPNC — Human-Planned Night Crew
 
-Overnight AI-powered task automation. Plan during the day, let AI agents work at night, review results in the morning.
+*Humans plan by day. Agents implement by night.*
+
+Overnight AI-powered task automation built on the [BMad Method](https://github.com/bmadcode/BMAD-METHOD). Plan stories with structured frontmatter during the day, let AI agents (Claude Code, Codex) implement in isolated Git worktrees at night with cross-model review and quality gates, review merge-ready results in the morning.
 
 ## What is HPNC?
 
-HPNC turns unused AI token budgets and overnight hours into reviewed, tested, merge-ready code. You structure and clarify work during the day. At night, a crew of AI agents autonomously implements fully prepared tasks in isolated Git worktrees, runs cross-model reviews, executes quality gates, and delivers results by morning.
+HPNC turns unused AI token budgets and overnight hours into reviewed, tested, merge-ready code. You structure and clarify work during the day using BMad as the planning framework. At night, a crew of AI agents autonomously implements fully prepared tasks in isolated Git worktrees, runs cross-model reviews, executes quality gates, and delivers results by morning.
 
 **The core insight:** the problem with AI-assisted coding was never "AI can't code." It was that nobody built the orchestration and quality assurance layer around it.
 
