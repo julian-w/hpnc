@@ -111,7 +111,7 @@ class ProcessLock:
 
             msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
         else:
-            import fcntl  # type: ignore[import-not-found]
+            import fcntl  # type: ignore[import-not-found,unused-ignore]
 
             fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
 
@@ -126,7 +126,7 @@ class ProcessLock:
 
             msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
         else:
-            import fcntl  # type: ignore[import-not-found]
+            import fcntl  # type: ignore[import-not-found,unused-ignore]
 
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
