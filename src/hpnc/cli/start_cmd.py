@@ -158,20 +158,25 @@ def start(
             console.print("\n[bold]Pre-flight agent check...[/bold]")
             preflight_dir = root / "_hpnc" / ".preflight"
             preflight_dir.mkdir(parents=True, exist_ok=True)
-            # Init git in preflight dir for Codex
             subprocess.run(
                 ["git", "init"], cwd=str(preflight_dir),
                 capture_output=True, text=True,
             )
-            if isinstance(executor, ClaudeCodeExecutor):
-                console.print("  Checking Claude Code...")
-                ClaudeCodeExecutor.preflight_check(preflight_dir)
-                console.print("  [green]✓[/green] Claude Code: authenticated, can edit files")
-            if isinstance(reviewer, CodexExecutor):
-                console.print("  Checking Codex...")
-                CodexExecutor.preflight_check(preflight_dir)
-                console.print("  [green]✓[/green] Codex: authenticated, can edit files")
-            # Clean up preflight dir
+            # Check ALL agents regardless of role
+            checked: set[type] = set()
+            for agent_label, agent_instance in [("executor", executor), ("reviewer", reviewer)]:
+                agent_type = type(agent_instance)
+                if agent_type in checked:
+                    continue
+                checked.add(agent_type)
+                if isinstance(agent_instance, ClaudeCodeExecutor):
+                    console.print(f"  Checking Claude Code ({agent_label})...")
+                    ClaudeCodeExecutor.preflight_check(preflight_dir)
+                    console.print("  [green]✓[/green] Claude Code: auth + files + commands")
+                elif isinstance(agent_instance, CodexExecutor):
+                    console.print(f"  Checking Codex ({agent_label})...")
+                    CodexExecutor.preflight_check(preflight_dir)
+                    console.print("  [green]✓[/green] Codex: auth + files + commands")
             import shutil as _shutil
 
             _shutil.rmtree(preflight_dir, ignore_errors=True)

@@ -228,7 +228,7 @@ class Validator:
     def _validate_agent_connectivity(self, result: ValidationResult) -> None:
         """Verify required AI agents are reachable (NFR17).
 
-        Checks that both executor and reviewer CLIs respond to --version.
+        Checks that configured executor and reviewer CLIs respond to --version.
         Does NOT run full preflight (that costs tokens) — use hpnc start
         which runs preflight_check before the night run.
 
@@ -237,7 +237,28 @@ class Validator:
         """
         import shutil
 
-        for agent_name, cli_cmd in [("Claude Code (executor)", "claude"), ("Codex (reviewer)", "codex")]:
+        agent_cli_map: dict[str, str] = {
+            "opus": "claude", "claude": "claude",
+            "codex": "codex",
+        }
+        # Read config to determine which agents to check
+        try:
+            from hpnc.infra.config import ConfigLoader
+            config = ConfigLoader().load(self.project_root)
+            agents_to_check = {
+                (f"{config.executor} (executor)", agent_cli_map.get(config.executor, "")),
+                (f"{config.reviewer} (reviewer)", agent_cli_map.get(config.reviewer, "")),
+            }
+        except Exception:
+            # Fallback if config can't be loaded
+            agents_to_check = {
+                ("Claude Code (executor)", "claude"),
+                ("Codex (reviewer)", "codex"),
+            }
+
+        for agent_name, cli_cmd in agents_to_check:
+            if not cli_cmd or cli_cmd == "mock":
+                continue
             found = shutil.which(cli_cmd)
             if not found:
                 result.add(

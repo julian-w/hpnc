@@ -163,8 +163,10 @@ class CodexExecutor:
             "--dangerously-bypass-approvals-and-sandbox",
             "-C", str(worktree),
         ]
-        if config.reviewer_model:
-            cmd.extend(["-m", config.reviewer_model])
+        # Use reviewer_model or executor_model depending on role
+        model = config.reviewer_model or config.executor_model
+        if model:
+            cmd.extend(["-m", model])
 
         cmd.append(prompt)
 

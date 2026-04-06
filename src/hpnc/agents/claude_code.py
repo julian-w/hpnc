@@ -153,8 +153,10 @@ class ClaudeCodeExecutor:
             "--max-turns", str(config.max_turns),
             "--no-session-persistence",
         ]
-        if config.executor_model:
-            cmd.extend(["--model", config.executor_model])
+        # Use executor_model or reviewer_model depending on role
+        model = config.executor_model or config.reviewer_model
+        if model:
+            cmd.extend(["--model", model])
         if instructions.exists():
             cmd.extend(["--append-system-prompt-file", str(instructions)])
 
