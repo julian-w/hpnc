@@ -99,6 +99,11 @@ HPNC is under active development. Current status:
 - **Testing:** pytest + mypy --strict + ruff
 - **CI:** GitHub Actions (Ubuntu + Windows)
 
+## Documentation
+
+- **[Full Documentation](https://julian-w.github.io/hpnc/)** — Getting started, concepts, CLI reference, configuration
+- **[HPNC.md (AI Context)](https://julian-w.github.io/hpnc/hpnc-context/)** — LLM-optimized single-file context for AI agents
+
 ## License
 
 MIT

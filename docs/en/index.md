@@ -35,3 +35,7 @@ Story File (.md)
   → Report Generator
   → CLI (morning report)
 ```
+
+## For AI Agents
+
+Need a single context file for your AI agent? See [HPNC.md (AI Context)](hpnc-context.md) — auto-generated, LLM-optimized.

@@ -44,6 +44,7 @@ nav:
     - config.yaml: configuration/config-yaml.md
     - Frontmatter Schema: configuration/frontmatter-schema.md
   - Troubleshooting: troubleshooting.md
+  - HPNC.md (AI Context): hpnc-context.md
 
 markdown_extensions:
   - pymdownx.highlight:
