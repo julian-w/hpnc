@@ -125,12 +125,9 @@ def test_codex_simple_prompt(tmp_path: Path) -> None:
 
 
 @pytest.mark.skipif(not _is_cli_available("codex"), reason="Codex not installed")
-def test_codex_preflight_auth_and_response(tmp_path: Path) -> None:
-    """Verify Codex can authenticate and respond to prompts.
-
-    Note: Codex is too slow for file-creation preflights (<60s budget).
-    API auth + prompt response verifies the essential capability.
-    --full-auto flag ensures file/command permissions at runtime.
-    """
+def test_codex_preflight_creates_file_and_runs_command(tmp_path: Path) -> None:
+    """Verify Codex can authenticate, create files AND run shell commands."""
     _init_git_repo(tmp_path)
     CodexExecutor.preflight_check(tmp_path)  # Should not raise
+    # Marker should be cleaned up
+    assert not (tmp_path / ".hpnc-preflight-test").exists()

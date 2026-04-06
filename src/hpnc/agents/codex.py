@@ -38,8 +38,8 @@ class CodexExecutor:
     """Executes tasks via Codex CLI (FR69-FR73).
 
     Launches Codex in non-interactive exec mode within the task's worktree.
-    Uses --full-auto (workspace-write sandbox, on-request approval).
-    With stdin=DEVNULL, approval prompts are skipped for workspace operations.
+    Uses --dangerously-bypass-approvals-and-sandbox for autonomous night execution.
+    Note: --full-auto (on-request approval) blocks on file writes with stdin=DEVNULL.
     """
 
     @staticmethod
@@ -78,22 +78,20 @@ class CodexExecutor:
         Raises:
             ConnectivityError: If any capability check fails.
         """
-        # Codex preflight: verify API auth + prompt execution
-        # Note: Codex is slower than Claude Code for agentic tasks,
-        # so we test prompt-response only (not file creation).
-        # The --full-auto flag ensures file/command permissions at runtime.
+        marker = worktree / ".hpnc-preflight-test"
+        prompt = "Create a file called .hpnc-preflight-test containing PREFLIGHT_OK and then run the shell command: echo COMMAND_OK"
         try:
             result = subprocess.run(
                 [
                     _find_codex(), "exec",
-                    "--full-auto",
-                    "Respond with exactly: PREFLIGHT_OK",
+                    "--dangerously-bypass-approvals-and-sandbox",
+                    prompt,
                 ],
                 stdin=subprocess.DEVNULL,
                 capture_output=True,
                 text=True,
                 cwd=str(worktree),
-                timeout=60,
+                timeout=120,
             )
             if result.returncode != 0:
                 raise ConnectivityError(
@@ -101,11 +99,18 @@ class CodexExecutor:
                     why=result.stderr.strip() or "Non-zero exit",
                     action="Check Codex authentication: set OPENAI_API_KEY or run 'codex' interactively",
                 )
-            if "PREFLIGHT_OK" not in result.stdout:
+            if not marker.exists():
                 raise ConnectivityError(
-                    what="Codex not responding correctly",
-                    why="Expected PREFLIGHT_OK in output",
-                    action="Verify Codex API access and model availability",
+                    what="Codex cannot edit files",
+                    why="Preflight prompt ran but no file was created",
+                    action="Verify Codex has file writing permissions",
+                )
+            combined = result.stdout + result.stderr
+            if "COMMAND_OK" not in combined:
+                raise ConnectivityError(
+                    what="Codex cannot execute commands",
+                    why="Preflight prompt ran but shell command output not found",
+                    action="Verify Codex has command execution permissions",
                 )
         except FileNotFoundError as e:
             raise ConnectivityError(
@@ -116,9 +121,12 @@ class CodexExecutor:
         except subprocess.TimeoutExpired as e:
             raise ConnectivityError(
                 what="Codex preflight timed out",
-                why="Preflight check did not complete within 180 seconds",
+                why="Preflight check did not complete within 120 seconds",
                 action="Check network connectivity and OpenAI API access",
             ) from e
+        finally:
+            if marker.exists():
+                marker.unlink()
 
     def start(
         self,
@@ -152,7 +160,7 @@ class CodexExecutor:
 
         cmd = [
             _find_codex(), "exec",
-            "--full-auto",
+            "--dangerously-bypass-approvals-and-sandbox",
         ]
         if config.reviewer_model:
             cmd.extend(["-m", config.reviewer_model])
