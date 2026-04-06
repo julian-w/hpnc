@@ -28,10 +28,10 @@ jobs:
 
       - run: uv sync
 
-      # Generate HPNC.md into docs site
-      - run: uv run python scripts/generate_hpnc_md.py docs/en/hpnc-context.md
-
       - run: cd docs && uv run mkdocs build --strict
+
+      # Generate HPNC.md as raw file into built site (after mkdocs build)
+      - run: uv run python scripts/generate_hpnc_md.py docs/site/HPNC.md
 
       - uses: actions/upload-pages-artifact@v3
         with:

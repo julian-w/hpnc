@@ -38,4 +38,4 @@ Story File (.md)
 
 ## For AI Agents
 
-Need a single context file for your AI agent? See [HPNC.md (AI Context)](hpnc-context.md) — auto-generated, LLM-optimized.
+Need a single context file for your AI agent? Download [HPNC.md](https://julian-w.github.io/hpnc/HPNC.md){:target="_blank"} — auto-generated from these docs, raw markdown, LLM-optimized.

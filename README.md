@@ -2,13 +2,18 @@
 
 *Humans plan by day. Agents implement by night.*
 
-Overnight AI-powered task automation built on the [BMad Method](https://github.com/bmadcode/BMAD-METHOD). Plan stories with structured frontmatter during the day, let AI agents (Claude Code, Codex) implement in isolated Git worktrees at night with cross-model review and quality gates, review merge-ready results in the morning.
+Overnight AI-powered task automation built on the [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD). Plan stories with structured frontmatter during the day, let AI agents (Claude Code, Codex) implement in isolated Git worktrees at night with cross-model review and quality gates, review merge-ready results in the morning.
 
 ## What is HPNC?
 
 You clarify the work. AI agents do it overnight. You review the results in the morning.
 
-HPNC builds the orchestration and quality assurance layer that turns AI coding from interactive babysitting into autonomous overnight execution. [BMad](https://github.com/bmadcode/BMAD-METHOD) provides the structured planning artifacts — PRDs, architecture decisions, stories with machine-readable frontmatter — that give agents the context they need to work autonomously. HPNC takes those artifacts and feeds them into a pipeline of implementation, cross-model review, and quality gates, all running unattended while you sleep.
+HPNC builds the orchestration and quality assurance layer that turns AI coding from interactive babysitting into autonomous overnight execution. [BMad](https://github.com/bmad-code-org/BMAD-METHOD) provides the structured planning artifacts — PRDs, architecture decisions, stories with machine-readable frontmatter — that give agents the context they need to work autonomously. HPNC takes those artifacts and feeds them into a pipeline of implementation, cross-model review, and quality gates, all running unattended while you sleep.
+
+### Documentation
+
+- **[Full Documentation](https://julian-w.github.io/hpnc/)** — Getting started, concepts, CLI reference, configuration
+- **[HPNC.md (AI Context)](https://julian-w.github.io/hpnc/HPNC.md)** — LLM-optimized single-file context for AI agents
 
 ### Key Features
 
@@ -98,11 +103,6 @@ HPNC is under active development. Current status:
 - **Package Manager:** uv
 - **Testing:** pytest + mypy --strict + ruff
 - **CI:** GitHub Actions (Ubuntu + Windows)
-
-## Documentation
-
-- **[Full Documentation](https://julian-w.github.io/hpnc/)** — Getting started, concepts, CLI reference, configuration
-- **[HPNC.md (AI Context)](https://julian-w.github.io/hpnc/hpnc-context/)** — LLM-optimized single-file context for AI agents
 
 ## License
 

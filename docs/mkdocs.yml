@@ -28,8 +28,10 @@ theme:
 docs_dir: en
 
 nav:
-  - Home: index.md
-  - Getting Started: getting-started.md
+  - Home:
+    - Overview: index.md
+    - Getting Started: getting-started.md
+    - Troubleshooting: troubleshooting.md
   - Concepts:
     - Night Policy: concepts/night-policy.md
     - Story Format: concepts/story-format.md
@@ -43,8 +45,6 @@ nav:
   - Configuration:
     - config.yaml: configuration/config-yaml.md
     - Frontmatter Schema: configuration/frontmatter-schema.md
-  - Troubleshooting: troubleshooting.md
-  - HPNC.md (AI Context): hpnc-context.md
 
 markdown_extensions:
   - pymdownx.highlight:
