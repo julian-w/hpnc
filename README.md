@@ -1,5 +1,7 @@
 # HPNC — Human-Planned Night Crew
 
+> **Early Development** — This project is under active development. APIs, CLI interfaces, and configuration formats may change at any time. Not yet recommended for production use.
+
 *Humans plan by day. Agents implement by night.*
 
 Overnight AI-powered task automation built on the [BMad Method](https://github.com/bmad-code-org/BMAD-METHOD). Plan stories with structured frontmatter during the day, let AI agents (Claude Code, Codex) implement in isolated Git worktrees at night with cross-model review and quality gates, review merge-ready results in the morning.
@@ -25,16 +27,10 @@ HPNC builds the orchestration and quality assurance layer that turns AI coding f
 
 ## Installation
 
-Requires Python 3.12+.
+Requires Python 3.12+ and Git 2.20+.
 
 ```bash
-pip install hpnc
-```
-
-Or for development:
-
-```bash
-git clone https://github.com/your-username/hpnc.git
+git clone https://github.com/julian-w/hpnc.git
 cd hpnc
 uv sync
 ```
@@ -85,24 +81,15 @@ Story File (.md)
   -> CLI (morning report)
 ```
 
-## Development Status
-
-HPNC is under active development. Current status:
-
-- [x] **Epic 1: Project Foundation** — Package structure, state machine, interfaces, mock executor, CI pipeline
-- [x] **Epic 2: Task Execution Engine** — Workspace, quality gates, event system, task runner
-- [x] **Epic 3: Setup, Validation & Queue** — Config loader, init command, queue manager, validation
-- [x] **Epic 4: Night Run & Morning Review** — Dispatcher, scheduling, report generator
-- [x] **Epic 5: Real Agent Integration** — Claude Code executor, Codex executor
-- [x] **Epic 6: Documentation** — MkDocs site, executor instructions
-
 ## Tech Stack
 
 - **Language:** Python 3.12+
-- **CLI:** Typer + Rich
-- **Package Manager:** uv
+- **CLI:** [Typer](https://typer.tiangolo.com/) + [Rich](https://rich.readthedocs.io/)
+- **AI Agents:** [Claude Code](https://claude.ai/code), [Codex](https://openai.com/codex)
+- **Package Manager:** [uv](https://docs.astral.sh/uv/)
 - **Testing:** pytest + mypy --strict + ruff
 - **CI:** GitHub Actions (Ubuntu + Windows)
+- **Docs:** [MkDocs Material](https://squidfunk.github.io/mkdocs-material/)
 
 ## License
 

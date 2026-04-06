@@ -10,12 +10,6 @@
 ## Installation
 
 ```bash
-pip install hpnc
-```
-
-Or for development:
-
-```bash
 git clone https://github.com/julian-w/hpnc.git
 cd hpnc
 uv sync
