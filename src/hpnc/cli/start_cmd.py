@@ -35,27 +35,46 @@ def _parse_delay(delay_str: str) -> float:
 
     Returns:
         Duration in seconds.
+
+    Raises:
+        ValueError: If the delay is invalid or negative.
     """
     delay_str = delay_str.strip().lower()
     if delay_str.endswith("h"):
-        return float(delay_str[:-1]) * 3600
-    if delay_str.endswith("m"):
-        return float(delay_str[:-1]) * 60
-    if delay_str.endswith("s"):
-        return float(delay_str[:-1])
-    return float(delay_str)
+        result = float(delay_str[:-1]) * 3600
+    elif delay_str.endswith("m"):
+        result = float(delay_str[:-1]) * 60
+    elif delay_str.endswith("s"):
+        result = float(delay_str[:-1])
+    else:
+        result = float(delay_str)
+    if result < 0:
+        msg = f"Delay must be non-negative, got: {delay_str}"
+        raise ValueError(msg)
+    return result
 
 
 def _wait_until(target_time: str, console: Console) -> None:
-    """Wait until a target time (HH:MM format).
+    """Wait until a target time (HH:MM format, local time).
 
     Handles sleep/hibernate by checking actual time on wake.
 
     Args:
         target_time: Time string in HH:MM format.
         console: Rich console for output.
+
+    Raises:
+        ValueError: If the time format is invalid.
     """
-    hour, minute = (int(x) for x in target_time.split(":"))
+    parts = target_time.split(":")
+    if len(parts) != 2:
+        msg = f"Invalid time format: '{target_time}'. Expected HH:MM"
+        raise ValueError(msg)
+    hour, minute = int(parts[0]), int(parts[1])
+    if not (0 <= hour <= 23 and 0 <= minute <= 59):
+        msg = f"Invalid time: {hour:02d}:{minute:02d}"
+        raise ValueError(msg)
+
     now = datetime.now()  # local time — user means local when typing "23:00"
     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if target <= now:
@@ -68,7 +87,7 @@ def _wait_until(target_time: str, console: Console) -> None:
     console.print(f"  Scheduled for {target_time} — waiting {delay:.0f}s...")
     time.sleep(delay)
 
-    # Handle hibernate/sleep time jumps
+    # Handle hibernate/sleep time jumps — re-check after wake
     actual = datetime.now()
     if actual < target:
         remaining = (target - actual).total_seconds()
@@ -86,20 +105,17 @@ def start(
     console = Console()
 
     try:
+        # Validate mutually exclusive scheduling options
+        if at is not None and delay is not None:
+            console.print("[red]✗[/red] Cannot use both --at and --delay")
+            raise typer.Exit(code=1)
+
         loader = ConfigLoader()
         root = loader.find_root()
         config = loader.load(root)
         workspace = Workspace(root=root)
 
-        # Scheduling
-        if at is not None:
-            _wait_until(at, console)
-        elif delay is not None:
-            seconds = _parse_delay(delay)
-            console.print(f"  Waiting {seconds:.0f}s before starting...")
-            time.sleep(seconds)
-
-        # Dry run — just show what would happen
+        # Dry run — skip scheduling, just show what would happen
         if dry_run:
             queue_path = root / CONFIG_DIR / "night-queue.yaml"
             qm = QueueManager(workspace=workspace, queue_path=queue_path)
@@ -109,6 +125,14 @@ def start(
                 console.print(f"  - {Path(t.get('story', '')).name}")
             console.print("\nNo agents executed, no state modified.")
             raise typer.Exit(code=0)
+
+        # Scheduling (only for non-dry-run)
+        if at is not None:
+            _wait_until(at, console)
+        elif delay is not None:
+            seconds = _parse_delay(delay)
+            console.print(f"  Waiting {seconds:.0f}s before starting...")
+            time.sleep(seconds)
 
         # Build dispatcher
         git = GitWrapper(repo_root=root)
@@ -150,6 +174,9 @@ def start(
         exit_code = 0 if failed == 0 and blocked == 0 else 1
         raise typer.Exit(code=exit_code)
 
+    except ValueError as e:
+        console.print(f"\n[red]✗[/red] {e}")
+        raise typer.Exit(code=1) from e
     except HpncError as e:
         console.print(f"\n[red]✗[/red] {e}")
         raise typer.Exit(code=e.exit_code) from e
