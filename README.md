@@ -6,9 +6,9 @@ Overnight AI-powered task automation built on the [BMad Method](https://github.c
 
 ## What is HPNC?
 
-HPNC turns unused AI token budgets and overnight hours into reviewed, tested, merge-ready code. You structure and clarify work during the day using BMad as the planning framework. At night, a crew of AI agents autonomously implements fully prepared tasks in isolated Git worktrees, runs cross-model reviews, executes quality gates, and delivers results by morning.
+You clarify the work. AI agents do it overnight. You review the results in the morning.
 
-HPNC builds the orchestration and quality assurance layer that turns AI coding from interactive babysitting into autonomous overnight execution.
+HPNC builds the orchestration and quality assurance layer that turns AI coding from interactive babysitting into autonomous overnight execution. [BMad](https://github.com/bmadcode/BMAD-METHOD) provides the structured planning artifacts — PRDs, architecture decisions, stories with machine-readable frontmatter — that give agents the context they need to work autonomously. HPNC takes those artifacts and feeds them into a pipeline of implementation, cross-model review, and quality gates, all running unattended while you sleep.
 
 ### Key Features
 
