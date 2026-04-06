@@ -43,6 +43,8 @@ class TaskRunner:
         workspace: Workspace for file operations.
         config: Project configuration.
         git: GitWrapper for branch/worktree operations.
+        executor_name: Identifier for the executor agent (e.g., "opus").
+        reviewer_name: Identifier for the reviewer agent (e.g., "codex").
     """
 
     def __init__(
@@ -54,6 +56,8 @@ class TaskRunner:
         workspace: Workspace,
         config: Config,
         git: GitWrapper,
+        executor_name: str = "executor",
+        reviewer_name: str = "reviewer",
     ) -> None:
         self.executor = executor
         self.reviewer = reviewer
@@ -62,6 +66,8 @@ class TaskRunner:
         self.workspace = workspace
         self.config = config
         self.git = git
+        self.executor_name = executor_name
+        self.reviewer_name = reviewer_name
 
     def run(
         self,
@@ -136,18 +142,36 @@ class TaskRunner:
         except HpncError:
             logger.exception("Task %s: HPNC error during lifecycle", task_name)
             if state not in {TaskState.DONE, TaskState.FAILED, TaskState.BLOCKED}:
+                old_state = state
                 try:
                     state = transition(state, TaskState.FAILED)
+                    self.listener.on_status_change(task_name, old_state, state)
                 except HpncError:
                     state = TaskState.FAILED
-                self.listener.on_status_change(task_name, state, TaskState.FAILED)
-                state = TaskState.FAILED
-            return self._complete(task_name, state, branch, started, story)
+            try:
+                return self._complete(task_name, state, branch, started, story)
+            except Exception:
+                logger.exception("Task %s: failed to write completion", task_name)
+                return RunResult(
+                    status=state, executor=self.executor_name,
+                    reviewer=self.reviewer_name, branch=branch,
+                    started=started, finished=datetime.now(tz=UTC).isoformat(),
+                    story_source=str(story),
+                )
 
         except Exception:
             logger.exception("Task %s: unexpected error during lifecycle", task_name)
             state = TaskState.FAILED
-            return self._complete(task_name, state, branch, started, story)
+            try:
+                return self._complete(task_name, state, branch, started, story)
+            except Exception:
+                logger.exception("Task %s: failed to write completion", task_name)
+                return RunResult(
+                    status=state, executor=self.executor_name,
+                    reviewer=self.reviewer_name, branch=branch,
+                    started=started, finished=datetime.now(tz=UTC).isoformat(),
+                    story_source=str(story),
+                )
 
         finally:
             if worktree_created:
@@ -225,8 +249,8 @@ class TaskRunner:
         finished = datetime.now(tz=UTC).isoformat()
         result = RunResult(
             status=state,
-            executor="executor",
-            reviewer="reviewer",
+            executor=self.executor_name,
+            reviewer=self.reviewer_name,
             branch=branch,
             started=started,
             finished=finished,

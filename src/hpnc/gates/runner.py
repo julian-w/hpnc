@@ -100,6 +100,14 @@ class GateRunner:
         """
         results = GateResults()
         for gate in self.gates:
-            result = gate.run(worktree)
+            try:
+                result = gate.run(worktree)
+            except Exception as e:
+                result = GateResult(
+                    name=gate.name,
+                    passed=False,
+                    exit_code=-1,
+                    stderr=f"Gate raised exception: {e}",
+                )
             results.results.append(result)
         return results
