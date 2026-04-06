@@ -10,6 +10,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+from hpnc.constants import GIT_TIMEOUT
 from hpnc.infra.errors import HpncError
 
 __all__ = ["GitWrapper"]
@@ -54,12 +55,21 @@ class GitWrapper:
         Raises:
             HpncError: If the git command exits with non-zero status.
         """
-        result = subprocess.run(
-            ["git", *args],
-            capture_output=True,
-            text=True,
-            cwd=str(self.repo_root),
-        )
+        try:
+            result = subprocess.run(
+                ["git", *args],
+                capture_output=True,
+                text=True,
+                cwd=str(self.repo_root),
+                timeout=GIT_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired as e:
+            cmd_str = f"git {' '.join(args)}"
+            raise HpncError(
+                what=f"Git command timed out: {cmd_str}",
+                why=f"Did not complete within {GIT_TIMEOUT}s",
+                action="Check for credential prompts or network issues",
+            ) from e
         if result.returncode != 0:
             cmd_str = f"git {' '.join(args)}"
             raise HpncError(

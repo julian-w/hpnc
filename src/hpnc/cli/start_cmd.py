@@ -194,9 +194,12 @@ def start(
         )
 
         now_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
-        run_num = "001"
+        runs_base = root / CONFIG_DIR / "runs" / now_str
+        run_num = 1
+        while (runs_base / f"{run_num:03d}").exists():
+            run_num += 1
         worktree_base = root / "worktrees"
-        run_dir_base = root / CONFIG_DIR / "runs" / now_str / run_num
+        run_dir_base = root / CONFIG_DIR / "runs" / now_str / f"{run_num:03d}"
 
         console.print(f"\n[bold green]Starting night run[/bold green] {'(mock)' if mock else ''}")
         results = dispatcher.run(worktree_base, run_dir_base)

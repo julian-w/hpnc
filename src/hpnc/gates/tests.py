@@ -9,6 +9,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+from hpnc.constants import GATE_TIMEOUT
 from hpnc.gates.runner import GateResult
 
 __all__ = ["TestGate"]
@@ -46,6 +47,14 @@ class TestGate:
                 capture_output=True,
                 text=True,
                 cwd=str(worktree),
+                timeout=GATE_TIMEOUT,
+            )
+        except subprocess.TimeoutExpired:
+            return GateResult(
+                name=self.name,
+                passed=False,
+                exit_code=-1,
+                stderr=f"Gate timed out after {GATE_TIMEOUT}s",
             )
         except FileNotFoundError:
             return GateResult(

@@ -221,9 +221,25 @@ class TaskRunner:
         Returns:
             The agent's exit status.
         """
+        import threading
+
         process = agent.start(story, self.config, instructions)
+
+        # Drain stderr in background thread to prevent pipe deadlock
+        stderr_lines: list[str] = []
+
+        def _drain_stderr() -> None:
+            if process.stderr is not None:
+                for line in process.stderr:
+                    stderr_lines.append(line.rstrip("\n"))
+
+        stderr_thread = threading.Thread(target=_drain_stderr, daemon=True)
+        stderr_thread.start()
+
         for line in agent.stream_output(process):
             self.listener.on_progress(task_name, phase, line)
+
+        stderr_thread.join(timeout=10)
         return agent.get_exit_status(process)
 
     def _complete(
