@@ -8,7 +8,7 @@ Overnight AI-powered task automation built on the [BMad Method](https://github.c
 
 HPNC turns unused AI token budgets and overnight hours into reviewed, tested, merge-ready code. You structure and clarify work during the day using BMad as the planning framework. At night, a crew of AI agents autonomously implements fully prepared tasks in isolated Git worktrees, runs cross-model reviews, executes quality gates, and delivers results by morning.
 
-**The core insight:** the problem with AI-assisted coding was never "AI can't code." It was that nobody built the orchestration and quality assurance layer around it.
+HPNC builds the orchestration and quality assurance layer that turns AI coding from interactive babysitting into autonomous overnight execution.
 
 ### Key Features
 
@@ -85,9 +85,9 @@ Story File (.md)
 HPNC is under active development. Current status:
 
 - [x] **Epic 1: Project Foundation** — Package structure, state machine, interfaces, mock executor, CI pipeline
-- [ ] **Epic 2: Task Execution Engine** — Workspace, quality gates, event system, task runner
-- [ ] **Epic 3: Setup, Validation & Queue** — Config loader, init command, queue manager, validation
-- [ ] **Epic 4: Night Run & Morning Review** — Dispatcher, scheduling, report generator
+- [x] **Epic 2: Task Execution Engine** — Workspace, quality gates, event system, task runner
+- [x] **Epic 3: Setup, Validation & Queue** — Config loader, init command, queue manager, validation
+- [x] **Epic 4: Night Run & Morning Review** — Dispatcher, scheduling, report generator
 - [ ] **Epic 5: Real Agent Integration** — Claude Code executor, Codex executor
 - [ ] **Epic 6: Documentation** — MkDocs site, executor instructions
 
