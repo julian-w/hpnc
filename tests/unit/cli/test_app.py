@@ -31,7 +31,11 @@ def test_init_help() -> None:
 def test_start_help() -> None:
     result = runner.invoke(app, ["start", "--help"])
     assert result.exit_code == 0
-    assert "--mock" in result.output
-    assert "--dry-run" in result.output
-    assert "--at" in result.output
-    assert "--delay" in result.output
+    # Strip ANSI escape codes for CI compatibility
+    import re
+
+    clean = re.sub(r"\x1b\[[0-9;]*m", "", result.output)
+    assert "--mock" in clean
+    assert "--dry-run" in clean
+    assert "--at" in clean
+    assert "--delay" in clean

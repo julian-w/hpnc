@@ -34,6 +34,10 @@ htmlcov/
 _bmad/
 _bmad-output/
 
+# MkDocs build output
+docs/site/
+docs/HPNC.md
+
 # OS
 .DS_Store
 Thumbs.db

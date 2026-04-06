@@ -1,0 +1,58 @@
+site_name: HPNC — Human-Planned Night Crew
+site_description: Overnight AI-powered task automation
+site_url: https://julian-w.github.io/hpnc/
+
+theme:
+  name: material
+  language: en
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Light mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - search.highlight
+    - content.code.copy
+
+docs_dir: en
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Concepts:
+    - Night Policy: concepts/night-policy.md
+    - Story Format: concepts/story-format.md
+    - State Machine: concepts/state-machine.md
+  - CLI Reference:
+    - init: cli/init.md
+    - validate: cli/validate.md
+    - start: cli/start.md
+    - status: cli/status.md
+    - queue: cli/queue.md
+  - Configuration:
+    - config.yaml: configuration/config-yaml.md
+    - Frontmatter Schema: configuration/frontmatter-schema.md
+  - Troubleshooting: troubleshooting.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - toc:
+      permalink: true
