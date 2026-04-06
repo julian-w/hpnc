@@ -161,6 +161,7 @@ class CodexExecutor:
         cmd = [
             _find_codex(), "exec",
             "--dangerously-bypass-approvals-and-sandbox",
+            "-C", str(worktree),
         ]
         if config.reviewer_model:
             cmd.extend(["-m", config.reviewer_model])
