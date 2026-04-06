@@ -29,7 +29,7 @@ def parse_frontmatter(story: Path) -> FrontmatterSchema:
     Returns:
         Parsed frontmatter as a FrontmatterSchema instance.
     """
-    content = story.read_text(encoding="utf-8")
+    content = story.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
     lines = content.split("\n")
 
     if not lines or lines[0].strip() != "---":

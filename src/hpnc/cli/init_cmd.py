@@ -9,6 +9,7 @@ from __future__ import annotations
 import subprocess
 from pathlib import Path
 
+import yaml
 from rich.console import Console
 
 from hpnc.infra.config import CONFIG_DIR, CONFIG_FILE
@@ -119,7 +120,8 @@ def run_init(project_root: Path | None = None, console: Console | None = None) -
         project_name = _detect_project_name(root)
 
         config_path.write_text(
-            f"project_name: {project_name}\n", encoding="utf-8"
+            yaml.dump({"project_name": project_name}, default_flow_style=False),
+            encoding="utf-8",
         )
         con.print(f"\n[bold green]HPNC initialized[/bold green] in {root}")
         con.print(f"  Created {CONFIG_DIR}/{CONFIG_FILE}")

@@ -140,6 +140,11 @@ class ConfigLoader:
 
         merged = {**_DEFAULTS, **raw}
 
+        # Merge list fields (union) instead of replace
+        default_paths = set(_DEFAULTS.get("protected_paths", []))
+        user_paths = set(raw.get("protected_paths", []))
+        merged["protected_paths"] = sorted(default_paths | user_paths)
+
         return Config(
             project_name=merged["project_name"],
             project_root=root.resolve(),
