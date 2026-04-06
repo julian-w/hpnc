@@ -8,11 +8,27 @@ authors = [
     { name = "Julian Wolter", email = "me@julian-w.de" }
 ]
 requires-python = ">=3.12"
+keywords = ["ai", "automation", "cli", "agents", "overnight", "code-review", "quality-gates"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
 dependencies = [
     "pyyaml>=6.0.3",
     "rich>=13",
     "typer>=0.24.1",
 ]
+
+[project.urls]
+Homepage = "https://github.com/julian-w/hpnc"
+Documentation = "https://julian-w.github.io/hpnc/"
+Repository = "https://github.com/julian-w/hpnc"
+Issues = "https://github.com/julian-w/hpnc/issues"
 
 [project.scripts]
 hpnc = "hpnc.cli.app:main"
