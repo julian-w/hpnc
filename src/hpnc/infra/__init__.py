@@ -11,10 +11,12 @@ from hpnc.infra.errors import (
     ValidationError,
 )
 from hpnc.infra.git import GitWrapper
+from hpnc.infra.logging import AgentOutputMode, setup_logging
 from hpnc.infra.process_lock import ProcessLock
 from hpnc.infra.workspace import Workspace
 
 __all__ = [
+    "AgentOutputMode",
     "Config",
     "ConfigError",
     "ConfigLoader",
@@ -27,4 +29,5 @@ __all__ = [
     "TaskInterruptedError",
     "ValidationError",
     "Workspace",
+    "setup_logging",
 ]
