@@ -10,6 +10,7 @@ Requires:
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -25,10 +26,13 @@ pytestmark = pytest.mark.e2e
 
 
 def _is_cli_available(cmd: str) -> bool:
-    """Check if a CLI tool is on PATH."""
+    """Check if a CLI tool is on PATH (handles Windows .cmd wrappers)."""
+    found = shutil.which(cmd)
+    if not found:
+        return False
     try:
         result = subprocess.run(
-            [cmd, "--version"], capture_output=True, text=True
+            [found, "--version"], capture_output=True, text=True
         )
         return result.returncode == 0
     except FileNotFoundError:
@@ -111,16 +115,19 @@ def test_codex_simple_prompt(tmp_path: Path) -> None:
     )
 
     story = tmp_path / "story.md"
-    story.write_text("Create a file called test_output.txt with content: HPNC_TEST_OK\n")
+    story.write_text("Respond with exactly: HPNC_TEST_OK\n")
     instructions = tmp_path / "instructions.md"
     instructions.write_text("Follow instructions exactly.\n")
     config = Config(project_name="test", project_root=tmp_path)
 
     executor = CodexExecutor()
     process = executor.start(story, config, instructions)
-    # Drain output before waiting for exit
-    for _line in executor.stream_output(process):
-        pass
+    output_lines = list(executor.stream_output(process))
     status = executor.get_exit_status(process)
 
-    assert status == ExitStatus.SUCCESS, f"Exit code: {process.returncode}"
+    stderr = process.stderr.read() if process.stderr else ""
+    assert status == ExitStatus.SUCCESS, (
+        f"Exit code: {process.returncode}\n"
+        f"stdout: {output_lines}\n"
+        f"stderr: {stderr}"
+    )

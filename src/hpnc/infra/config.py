@@ -26,6 +26,9 @@ _DEFAULTS: dict[str, Any] = {
     "max_fix_attempts": 3,
     "executor": "opus",
     "reviewer": "codex",
+    "executor_model": "",
+    "reviewer_model": "",
+    "max_turns": 10,
     "protected_paths": ["_hpnc/", "_bmad/", ".claude/"],
 }
 
@@ -56,6 +59,9 @@ class Config:
     max_fix_attempts: int = 3
     executor: str = "opus"
     reviewer: str = "codex"
+    executor_model: str = ""
+    reviewer_model: str = ""
+    max_turns: int = 10
     protected_paths: list[str] = field(
         default_factory=lambda: ["_hpnc/", "_bmad/", ".claude/"]
     )
@@ -155,5 +161,8 @@ class ConfigLoader:
             max_fix_attempts=merged["max_fix_attempts"],
             executor=merged["executor"],
             reviewer=merged["reviewer"],
+            executor_model=merged["executor_model"],
+            reviewer_model=merged["reviewer_model"],
+            max_turns=merged["max_turns"],
             protected_paths=merged["protected_paths"],
         )

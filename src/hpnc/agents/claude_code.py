@@ -79,17 +79,20 @@ class ClaudeCodeExecutor:
 
         cmd = [
             "claude",
-            "--bare",
             "-p", prompt,
             "--dangerously-skip-permissions",
             "--output-format", "text",
-            "--max-turns", "10",
+            "--max-turns", str(config.max_turns),
+            "--no-session-persistence",
         ]
+        if config.executor_model:
+            cmd.extend(["--model", config.executor_model])
         if instructions.exists():
             cmd.extend(["--append-system-prompt-file", str(instructions)])
 
         return subprocess.Popen(
             cmd,
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,

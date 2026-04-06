@@ -3,11 +3,13 @@
 All CLI-specific behavior is isolated here (NFR26).
 Agent credentials are never logged or stored (NFR20).
 
-CLI reference: codex exec "prompt" --full-auto --json
+CLI reference: codex exec "prompt" --full-auto
+Note: On Windows, Codex is a Node.js .cmd wrapper — use shutil.which() to resolve.
 """
 
 from __future__ import annotations
 
+import shutil
 import subprocess
 from collections.abc import Iterator
 from pathlib import Path
@@ -20,6 +22,16 @@ if TYPE_CHECKING:
     from hpnc.infra.config import Config
 
 __all__ = ["CodexExecutor"]
+
+
+def _find_codex() -> str:
+    """Find the codex executable, handling Windows .cmd wrappers.
+
+    Returns:
+        Full path to codex executable, or "codex" as fallback.
+    """
+    found = shutil.which("codex")
+    return found if found else "codex"
 
 
 class CodexExecutor:
@@ -38,7 +50,7 @@ class CodexExecutor:
         """
         try:
             result = subprocess.run(
-                ["codex", "--version"],
+                [_find_codex(), "--version"],
                 capture_output=True,
                 text=True,
             )
@@ -77,19 +89,26 @@ class CodexExecutor:
         worktree = story.parent
         prompt = story.read_text(encoding="utf-8")
 
+        # Copy instructions as AGENTS.md in worktree (Codex auto-discovers this)
+        if instructions.exists():
+            agents_md = worktree / "AGENTS.md"
+            if not agents_md.exists():
+                agents_md.write_text(
+                    instructions.read_text(encoding="utf-8"), encoding="utf-8"
+                )
+
         cmd = [
-            "codex", "exec",
+            _find_codex(), "exec",
             "--full-auto",
         ]
-
-        if instructions.exists():
-            instr_content = instructions.read_text(encoding="utf-8")
-            cmd.extend(["-c", f"developer_instructions={instr_content}"])
+        if config.reviewer_model:
+            cmd.extend(["-m", config.reviewer_model])
 
         cmd.append(prompt)
 
         return subprocess.Popen(
             cmd,
+            stdin=subprocess.DEVNULL,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
