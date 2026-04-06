@@ -77,6 +77,10 @@ class CodexExecutor:
         Raises:
             ConnectivityError: If any capability check fails.
         """
+        # Codex preflight: verify API auth + prompt execution
+        # Note: Codex is slower than Claude Code for agentic tasks,
+        # so we test prompt-response only (not file creation).
+        # The --full-auto flag ensures file/command permissions at runtime.
         try:
             result = subprocess.run(
                 [
@@ -98,7 +102,7 @@ class CodexExecutor:
             if "PREFLIGHT_OK" not in result.stdout:
                 raise ConnectivityError(
                     what="Codex not responding correctly",
-                    why="Expected PREFLIGHT_OK in output, got something else",
+                    why="Expected PREFLIGHT_OK in output",
                     action="Verify Codex API access and model availability",
                 )
         except FileNotFoundError as e:
@@ -110,7 +114,7 @@ class CodexExecutor:
         except subprocess.TimeoutExpired as e:
             raise ConnectivityError(
                 what="Codex preflight timed out",
-                why="Preflight check did not complete within 60 seconds",
+                why="Preflight check did not complete within 180 seconds",
                 action="Check network connectivity and OpenAI API access",
             ) from e
 

@@ -69,14 +69,18 @@ class ClaudeCodeExecutor:
             ConnectivityError: If any capability check fails.
         """
         marker = worktree / ".hpnc-preflight-test"
+        prompt = (
+            "Do these two things:\n"
+            "1. Create a file called .hpnc-preflight-test containing: PREFLIGHT_OK\n"
+            "2. Run this shell command: echo COMMAND_OK"
+        )
         try:
             result = subprocess.run(
                 [
-                    "claude", "-p",
-                    "Create a file called .hpnc-preflight-test containing exactly: PREFLIGHT_OK",
+                    "claude", "-p", prompt,
                     "--dangerously-skip-permissions",
                     "--output-format", "text",
-                    "--max-turns", "3",
+                    "--max-turns", "5",
                     "--no-session-persistence",
                 ],
                 stdin=subprocess.DEVNULL,
@@ -94,8 +98,14 @@ class ClaudeCodeExecutor:
             if not marker.exists():
                 raise ConnectivityError(
                     what="Claude Code cannot edit files",
-                    why="Preflight prompt completed but no file was created",
-                    action="Verify Claude Code has file editing permissions",
+                    why="Preflight prompt ran but no file was created",
+                    action="Verify Claude Code has file editing permissions (Write/Edit tools)",
+                )
+            if "COMMAND_OK" not in result.stdout:
+                raise ConnectivityError(
+                    what="Claude Code cannot execute commands",
+                    why="Preflight prompt ran but shell command output not found",
+                    action="Verify Claude Code has Bash tool permissions",
                 )
         except FileNotFoundError as e:
             raise ConnectivityError(
