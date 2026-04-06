@@ -38,7 +38,8 @@ class CodexExecutor:
     """Executes tasks via Codex CLI (FR69-FR73).
 
     Launches Codex in non-interactive exec mode within the task's worktree.
-    Uses --full-auto for autonomous execution (workspace-write sandbox).
+    Uses --full-auto (workspace-write sandbox, on-request approval).
+    With stdin=DEVNULL, approval prompts are skipped for workspace operations.
     """
 
     @staticmethod
@@ -84,7 +85,8 @@ class CodexExecutor:
         try:
             result = subprocess.run(
                 [
-                    _find_codex(), "exec", "--full-auto",
+                    _find_codex(), "exec",
+                    "--full-auto",
                     "Respond with exactly: PREFLIGHT_OK",
                 ],
                 stdin=subprocess.DEVNULL,
