@@ -13,7 +13,9 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from hpnc.agents.base import AgentExecutor
 from hpnc.agents.mock import MockAgentExecutor
+from hpnc.agents.routing import get_executor
 from hpnc.core.dispatcher import Dispatcher
 from hpnc.core.queue_manager import QueueManager
 from hpnc.gates.build import BuildGate
@@ -140,11 +142,14 @@ def start(
         qm = QueueManager(workspace=workspace, queue_path=queue_path)
         lock = ProcessLock(lock_path=root / CONFIG_DIR / ".dispatcher.lock")
 
-        if not mock:
-            # TODO(phase-1): Story 5.1/5.2 will add real agent executors
-            console.print("[yellow]![/yellow] Real agents not yet implemented — using mock")
-        executor = MockAgentExecutor()
-        reviewer = MockAgentExecutor()
+        executor: AgentExecutor
+        reviewer: AgentExecutor
+        if mock:
+            executor = MockAgentExecutor()
+            reviewer = MockAgentExecutor()
+        else:
+            executor = get_executor(config.executor)
+            reviewer = get_executor(config.reviewer)
         gates = GateRunner(gates=[BuildGate(), TestGate(), LintGate()])
 
         dispatcher = Dispatcher(
