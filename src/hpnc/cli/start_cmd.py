@@ -6,7 +6,7 @@ Supports immediate start, --at, --delay, --dry-run, --mock.
 from __future__ import annotations
 
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Annotated
 
@@ -56,10 +56,10 @@ def _wait_until(target_time: str, console: Console) -> None:
         console: Rich console for output.
     """
     hour, minute = (int(x) for x in target_time.split(":"))
-    now = datetime.now(tz=UTC)
+    now = datetime.now()  # local time — user means local when typing "23:00"
     target = now.replace(hour=hour, minute=minute, second=0, microsecond=0)
     if target <= now:
-        target = target.replace(day=target.day + 1)
+        target += timedelta(days=1)
 
     delay = (target - now).total_seconds()
     if delay <= 0:
@@ -69,7 +69,7 @@ def _wait_until(target_time: str, console: Console) -> None:
     time.sleep(delay)
 
     # Handle hibernate/sleep time jumps
-    actual = datetime.now(tz=UTC)
+    actual = datetime.now()
     if actual < target:
         remaining = (target - actual).total_seconds()
         if remaining > 0:
@@ -116,9 +116,11 @@ def start(
         qm = QueueManager(workspace=workspace, queue_path=queue_path)
         lock = ProcessLock(lock_path=root / CONFIG_DIR / ".dispatcher.lock")
 
-        executor = MockAgentExecutor() if mock else MockAgentExecutor()
-        reviewer = MockAgentExecutor() if mock else MockAgentExecutor()
-        # TODO(phase-1): Replace with real agent selection based on config
+        if not mock:
+            # TODO(phase-1): Story 5.1/5.2 will add real agent executors
+            console.print("[yellow]![/yellow] Real agents not yet implemented — using mock")
+        executor = MockAgentExecutor()
+        reviewer = MockAgentExecutor()
         gates = GateRunner(gates=[BuildGate(), TestGate(), LintGate()])
 
         dispatcher = Dispatcher(
@@ -132,7 +134,7 @@ def start(
             lock=lock,
         )
 
-        now_str = datetime.now(tz=UTC).strftime("%Y/%m/%d")
+        now_str = datetime.now(tz=UTC).strftime("%Y-%m-%d")
         run_num = "001"
         worktree_base = root / "worktrees"
         run_dir_base = root / CONFIG_DIR / "runs" / now_str / run_num

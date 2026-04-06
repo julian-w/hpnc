@@ -178,14 +178,9 @@ class Dispatcher:
                 )
 
             # Clean up completed tasks from queue (FR34)
-            remaining = [
-                t for t in tasks
-                if Path(t.get("story", "")).stem not in {
-                    Path(t2.get("story", "")).stem for t2 in tasks
-                }
-            ]
+            # All processed tasks are removed — they have terminal status in run artifacts
             self.workspace.write_yaml_atomic(
-                self.queue_manager.queue_path, {"tasks": remaining}
+                self.queue_manager.queue_path, {"tasks": []}
             )
 
             state.save({
