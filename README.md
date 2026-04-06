@@ -30,6 +30,12 @@ HPNC builds the orchestration and quality assurance layer that turns AI coding f
 Requires Python 3.12+ and Git 2.20+.
 
 ```bash
+pip install hpnc
+```
+
+For development:
+
+```bash
 git clone https://github.com/julian-w/hpnc.git
 cd hpnc
 uv sync

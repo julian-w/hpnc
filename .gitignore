@@ -29,10 +29,8 @@ htmlcov/
 *.swo
 *~
 
-# Claude Code / BMad (local tooling — not committed for now)
-.claude/
-_bmad/
-_bmad-output/
+# Claude Code (local settings are personal)
+.claude/settings.local.json
 
 # MkDocs build output
 docs/site/

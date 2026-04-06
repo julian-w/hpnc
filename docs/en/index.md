@@ -18,9 +18,7 @@ HPNC builds the orchestration and quality assurance layer that turns AI coding f
 ## Quick install
 
 ```bash
-git clone https://github.com/julian-w/hpnc.git
-cd hpnc
-uv sync
+pip install hpnc
 hpnc init
 ```
 

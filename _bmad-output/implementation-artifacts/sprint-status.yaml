@@ -1,0 +1,85 @@
+# generated: 2026-04-06
+# last_updated: 2026-04-06
+# project: hpnc
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-06
+last_updated: 2026-04-06
+project: hpnc
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # Epic 1: Project Foundation — "hpnc existiert"
+  epic-1: done
+  1-1-project-bootstrap-package-structure: done
+  1-2-core-interfaces-state-machine-error-hierarchy: done
+  1-3-mock-executor-ci-pipeline: done
+  epic-1-retrospective: done
+
+  # Epic 2: Task Execution Engine — "Tasks werden verarbeitet"
+  epic-2: done
+  2-1-workspace-git-infrastructure: done
+  2-2-quality-gates: done
+  2-3-event-system-logging: done
+  2-4-task-runner-complete-lifecycle: done
+  epic-2-retrospective: done
+
+  # Epic 3: Setup, Validation & Queue — "Bereit für die Nacht"
+  epic-3: done
+  3-1-config-loader-project-root-discovery: done
+  3-2-hpnc-init-command: done
+  3-3-queue-manager-hpnc-queue-add: done
+  3-4-validation-engine-hpnc-validate: done
+  epic-3-retrospective: done
+
+  # Epic 4: Night Run & Morning Review — "Der Nachtzyklus"
+  epic-4: done
+  4-1-dispatcher-sequential-task-processing: done
+  4-2-scheduling-hpnc-start-command: done
+  4-3-report-generator-hpnc-status: done
+  epic-4-retrospective: optional
+
+  # Epic 5: Real Agent Integration — "KI arbeitet über Nacht"
+  epic-5: done
+  5-1-claude-code-executor: done
+  5-2-codex-executor: done
+  epic-5-retrospective: optional
+
+  # Epic 6: Documentation — "Alles dokumentiert"
+  epic-6: in-progress
+  6-1-mkdocs-documentation-site: in-progress
+  6-2-hpnc-md-executor-instructions: in-progress
+  epic-6-retrospective: optional
