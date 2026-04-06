@@ -2,6 +2,8 @@
 
 All CLI-specific behavior is isolated here (NFR26).
 Agent credentials are never logged or stored (NFR20).
+
+CLI reference: claude --bare -p "prompt" --output-format text
 """
 
 from __future__ import annotations
@@ -23,8 +25,8 @@ __all__ = ["ClaudeCodeExecutor"]
 class ClaudeCodeExecutor:
     """Executes tasks via Claude Code CLI (FR69-FR73).
 
-    Launches Claude Code as a subprocess in the task's worktree.
-    Maps Claude Code exit codes to ExitStatus.
+    Launches Claude Code in non-interactive mode (-p) within the task's worktree.
+    Uses --bare to skip auto-discovery for consistent behavior across worktrees.
     """
 
     @staticmethod
@@ -59,7 +61,10 @@ class ClaudeCodeExecutor:
         config: Config,
         instructions: Path,
     ) -> subprocess.Popen[str]:
-        """Start Claude Code with the story file in the worktree.
+        """Start Claude Code with the story content as prompt.
+
+        Uses -p (non-interactive), --bare (no auto-discovery),
+        and --append-system-prompt-file for executor instructions.
 
         Args:
             story: Path to the story markdown file.
@@ -70,15 +75,18 @@ class ClaudeCodeExecutor:
             Running Claude Code subprocess.
         """
         worktree = story.parent
+        prompt = story.read_text(encoding="utf-8")
 
         cmd = [
             "claude",
-            "--print",
+            "--bare",
+            "-p", prompt,
             "--dangerously-skip-permissions",
+            "--output-format", "text",
+            "--max-turns", "10",
         ]
         if instructions.exists():
-            cmd.extend(["--system-prompt", str(instructions)])
-        cmd.extend(["--", str(story)])
+            cmd.extend(["--append-system-prompt-file", str(instructions)])
 
         return subprocess.Popen(
             cmd,
@@ -108,6 +116,8 @@ class ClaudeCodeExecutor:
     ) -> ExitStatus:
         """Map Claude Code exit code to ExitStatus (FR71).
 
+        Exit 0 = success, anything else = failure.
+
         Args:
             process: The completed Claude Code subprocess.
 
@@ -115,9 +125,6 @@ class ClaudeCodeExecutor:
             ExitStatus based on exit code.
         """
         process.wait()
-        code = process.returncode
-        if code == 0:
+        if process.returncode == 0:
             return ExitStatus.SUCCESS
-        if code == 1:
-            return ExitStatus.FAILURE
-        return ExitStatus.TIMEOUT
+        return ExitStatus.FAILURE
